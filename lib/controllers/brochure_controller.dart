@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:muit_sales_app/models/brochure_model.dart';
 import 'package:muit_sales_app/repo/brochure_repo.dart';
@@ -9,10 +10,31 @@ class BrochureController extends GetxController {
   final RxList<BrochureModel> brochures = <BrochureModel>[].obs;
   final RxBool isLoading = false.obs;
 
+  // search
+  final searchCtrl = TextEditingController();
+  final RxString searchQuery = ''.obs;
+
   @override
   void onInit() {
     super.onInit();
     fetchBrochures();
+  }
+
+  // ---------- SEARCH ----------
+
+  List<BrochureModel> get filteredBrochures {
+    final q = searchQuery.value.trim().toLowerCase();
+    if (q.isEmpty) return brochures;
+
+    return brochures.where((b) {
+      return b.title.toLowerCase().contains(q) ||
+          b.course.toLowerCase().contains(q);
+    }).toList();
+  }
+
+  void clearSearch() {
+    searchCtrl.clear();
+    searchQuery.value = '';
   }
 
   Future<void> fetchBrochures() async {
@@ -50,5 +72,11 @@ class BrochureController extends GetxController {
     } catch (e) {
       Get.snackbar('WhatsApp', 'Could not open WhatsApp');
     }
+  }
+
+  @override
+  void onClose() {
+    searchCtrl.dispose();
+    super.onClose();
   }
 }

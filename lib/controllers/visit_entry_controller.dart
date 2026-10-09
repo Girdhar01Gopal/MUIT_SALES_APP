@@ -39,6 +39,10 @@ class VisitEntryController extends GetxController {
   final RxList<LeadModel> visits = <LeadModel>[].obs;
   final RxBool isLoadingVisits = false.obs;
 
+  // search
+  final searchCtrl = TextEditingController();
+  final RxString searchQuery = ''.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -46,6 +50,29 @@ class VisitEntryController extends GetxController {
     fetchVisits();
   }
 
+
+
+  // ---------- SEARCH ----------
+
+  List<LeadModel> get filteredVisits {
+    final q = searchQuery.value.trim().toLowerCase();
+    if (q.isEmpty) return visits;
+
+    return visits.where((v) {
+      return v.name.toLowerCase().contains(q) ||
+          v.course.toLowerCase().contains(q) ||
+          v.phone.toLowerCase().contains(q) ||
+          v.schoolCollege.toLowerCase().contains(q) ||
+          v.status.toLowerCase().contains(q) ||
+          v.followUpDate.toLowerCase().contains(q) ||
+          v.remarks.toLowerCase().contains(q);
+    }).toList();
+  }
+
+  void clearSearch() {
+    searchCtrl.clear();
+    searchQuery.value = '';
+  }
   // ---------- VIEW VISITS ----------
 
   Future<void> fetchVisits() async {
@@ -58,6 +85,8 @@ class VisitEntryController extends GetxController {
       isLoadingVisits.value = false;
     }
   }
+
+
 
   // ---------- LOCATION ----------
 
@@ -141,6 +170,7 @@ class VisitEntryController extends GetxController {
     schoolCtrl.dispose();
     remarksCtrl.dispose();
     followUpCtrl.dispose();
+    searchCtrl.dispose();
     super.onClose();
   }
 }

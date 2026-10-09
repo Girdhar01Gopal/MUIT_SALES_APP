@@ -20,13 +20,9 @@ class AppDrawer extends StatelessWidget {
             child: Center(
               child: Container(
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
                 child: Image.asset(
-                  'assets/images/muit_spash_logo.webp',
-                  height: 90,
+                  'assets/images/LogoMuit_without back.png',
+                  height: 120,
                   fit: BoxFit.contain,
                 ),
               ),

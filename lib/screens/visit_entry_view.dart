@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:muit_sales_app/models/lead_model.dart';
 import 'package:muit_sales_app/res/app_colors.dart';
+import 'package:muit_sales_app/wigets/app_background.dart';
 import 'package:muit_sales_app/wigets/custom_button.dart';
 import 'package:muit_sales_app/wigets/custom_dropdown.dart';
 import 'package:muit_sales_app/wigets/custom_text_field.dart';
@@ -42,32 +43,13 @@ class VisitEntryView extends GetView<VisitEntryController> {
             ],
           ),
         ),
-        body: Stack(
-          children: [
-            // ---------- WATERMARK ----------
-            Positioned.fill(
-              child: IgnorePointer(
-                child: Center(
-                  child: Opacity(
-                    opacity: 0.15,
-                    child: Image.asset(
-                      'assets/images/muit_spash_logo.webp',
-                      width: 280,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // ---------- TABS ----------
-            TabBarView(
-              children: [
-                _addTab(),
-                _viewTab(),
-              ],
-            ),
-          ],
+        body: AppBackground(
+          child: TabBarView(
+            children: [
+              _addTab(),
+              _viewTab(),
+            ],
+          ),
         ),
       ),
     );
@@ -236,30 +218,83 @@ class VisitEntryView extends GetView<VisitEntryController> {
   // =====================================================
   // TAB 2 : VIEW VISITS
   // =====================================================
+  // =====================================================
+  // TAB 2 : VIEW VISITS
+  // =====================================================
   Widget _viewTab() {
-    return Obx(() {
-      if (controller.isLoadingVisits.value && controller.visits.isEmpty) {
-        return const Center(child: CircularProgressIndicator());
-      }
+    return Column(
+      children: [
+        _searchBar(),
+        Expanded(
+          child: Obx(() {
+            if (controller.isLoadingVisits.value &&
+                controller.visits.isEmpty) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-      return RefreshIndicator(
-        onRefresh: controller.fetchVisits,
-        child: controller.visits.isEmpty
-            ? ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: const [
-            SizedBox(height: 120),
-            Center(child: Text('No visits found')),
-          ],
-        )
-            : ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(12),
-          itemCount: controller.visits.length,
-          itemBuilder: (_, i) => _visitCard(controller.visits[i]),
+            final list = controller.filteredVisits;
+
+            return RefreshIndicator(
+              onRefresh: controller.fetchVisits,
+              child: list.isEmpty
+                  ? ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  const SizedBox(height: 120),
+                  Center(
+                    child: Text(
+                      controller.searchQuery.value.isEmpty
+                          ? 'No visits found'
+                          : 'No matching visits',
+                    ),
+                  ),
+                ],
+              )
+                  : ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(12),
+                itemCount: list.length,
+                itemBuilder: (_, i) => _visitCard(list[i]),
+              ),
+            );
+          }),
         ),
-      );
-    });
+      ],
+    );
+  }
+
+  // ---------- SEARCH BAR ----------
+  Widget _searchBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+      child: Obx(() => TextField(
+        controller: controller.searchCtrl,
+        onChanged: (v) => controller.searchQuery.value = v,
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          hintText: 'Search by name, course, phone, status...',
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: controller.searchQuery.value.isEmpty
+              ? null
+              : IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: controller.clearSearch,
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.black, width: 1),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide:
+            const BorderSide(color: AppColors.darkBlue, width: 1.5),
+          ),
+        ),
+      )),
+    );
   }
 
   Widget _visitCard(LeadModel v) {

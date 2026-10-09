@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:muit_sales_app/infrastructures/routes/app_routes.dart';
 import 'package:muit_sales_app/models/lead_model.dart';
 import 'package:muit_sales_app/res/app_colors.dart';
+import 'package:muit_sales_app/wigets/app_background.dart';
 
 import '../controllers/leads_controller.dart';
 
@@ -28,33 +29,14 @@ class LeadsView extends GetView<LeadsController> {
         foregroundColor: Colors.white,
         child: const Icon(Icons.add),
       ),
-      body: Stack(
-        children: [
-          // ---------- WATERMARK ----------
-          Positioned.fill(
-            child: IgnorePointer(
-              child: Center(
-                child: Opacity(
-                  opacity: 0.15,
-                  child: Image.asset(
-                    'assets/images/muit_spash_logo.webp',
-                    width: 280,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // ---------- CONTENT ----------
-          Column(
-            children: [
-              _searchBox(),
-              _filterChips(),
-              Expanded(child: _list()),
-            ],
-          ),
-        ],
+      body: AppBackground(
+        child: Column(
+          children: [
+            _searchBox(),
+            _filterChips(),
+            Expanded(child: _list()),
+          ],
+        ),
       ),
     );
   }

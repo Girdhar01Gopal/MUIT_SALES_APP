@@ -132,9 +132,18 @@ class DashboardController extends GetxController {
     final file = await FilePicker.pickFile();
     if (file == null) return;
 
+    const allowed = [
+      'xlsx', 'xls', 'csv',
+      'pdf', 'doc', 'docx',
+      'jpg', 'jpeg', 'png', 'webp',
+    ];
+
     final ext = file.name.split('.').last.toLowerCase();
-    if (!['xlsx', 'xls', 'csv'].contains(ext)) {
-      Get.snackbar('Excel', 'Please select only .xlsx, .xls or .csv files');
+    if (!allowed.contains(ext)) {
+      Get.snackbar(
+        'File',
+        'Please select .xlsx, .xls, .csv, .pdf, .doc, .docx or image files only',
+      );
       return;
     }
     excel.value = file;
@@ -143,11 +152,11 @@ class DashboardController extends GetxController {
   Future<void> uploadExcel() async {
     final file = excel.value;
     if (file == null) {
-      Get.snackbar('Excel', 'Please select a file first');
+      Get.snackbar('File', 'Please select a file first');
       return;
     }
     if (file.path == null) {
-      Get.snackbar('Excel', 'File path not found, please select again');
+      Get.snackbar('File', 'File path not found, please select again');
       return;
     }
 
@@ -156,7 +165,7 @@ class DashboardController extends GetxController {
       final ok = await _repo.uploadExcel(file);
 
       if (ok) {
-        Get.snackbar('Success', 'Excel uploaded successfully');
+        Get.snackbar('Success', 'File uploaded successfully');
         excel.value = null;
       } else {
         Get.snackbar('Error', 'Upload failed');

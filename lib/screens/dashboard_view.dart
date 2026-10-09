@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:muit_sales_app/infrastructures/constant/image_constant.dart';
 import 'package:muit_sales_app/res/app_colors.dart';
+import 'package:muit_sales_app/wigets/app_background.dart';
 import 'package:muit_sales_app/wigets/app_drawer.dart';
 import 'package:muit_sales_app/wigets/custom_button.dart';
 
@@ -24,71 +26,50 @@ class DashboardView extends GetView<DashboardController> {
             borderRadius: BorderRadius.circular(10),
           ),
           child: Image.asset(
-            'assets/images/muit_logo.png',
+            ImageConstants.muitLogo,
             height: 34,
             fit: BoxFit.contain,
           ),
         ),
       ),
       drawer: const AppDrawer(),
-      body: Stack(
-        children: [
-          // ---------- WATERMARK ----------
-          Positioned.fill(
-            child: IgnorePointer(
-              child: Center(
-                child: Opacity(
-                  opacity: 0.15,
-                  child: Image.asset(
-                    'assets/images/muit_spash_logo.webp',
-                    width: 280,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // ---------- CONTENT (PULL TO REFRESH) ----------
-          Positioned.fill(
-            child: RefreshIndicator(
-              color: AppColors.darkBlue,
-              onRefresh: controller.refreshDashboard,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: AppBackground(
+        child: RefreshIndicator(
+          color: AppColors.darkBlue,
+          onRefresh: controller.refreshDashboard,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _statCard(
-                            "Today's Visits",
-                            controller.todayVisits,
-                            Icons.directions_walk,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _statCard(
-                            'Total Leads',
-                            controller.totalLeads,
-                            Icons.people_alt_outlined,
-                          ),
-                        ),
-                      ],
+                    Expanded(
+                      child: _statCard(
+                        "Today's Visits",
+                        controller.todayVisits,
+                        Icons.directions_walk,
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                    _photoCard(),
-                    const SizedBox(height: 16),
-                    _excelCard(),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _statCard(
+                        'Total Leads',
+                        controller.totalLeads,
+                        Icons.people_alt_outlined,
+                      ),
+                    ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 16),
+                _photoCard(),
+                const SizedBox(height: 16),
+                _excelCard(),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -295,7 +276,7 @@ class DashboardView extends GetView<DashboardController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _sectionTitle(Icons.table_chart_outlined, 'Excel Upload (Leads)'),
+          _sectionTitle(Icons.table_chart_outlined, 'File Upload (Leads)'), // changed
           const SizedBox(height: 14),
           Obx(() => Text(
             controller.excel.value?.name ?? 'No file selected',
@@ -306,11 +287,11 @@ class DashboardView extends GetView<DashboardController> {
             style: _outlineStyle(),
             onPressed: controller.pickExcel,
             icon: const Icon(Icons.upload_file),
-            label: const Text('Choose Excel File'),
+            label: const Text('Choose File'), // changed
           ),
           const SizedBox(height: 12),
           Obx(() => CustomButton(
-            label: 'Upload Excel',
+            label: 'Upload File', // changed
             isLoading: controller.isUploadingExcel.value,
             onPressed: controller.uploadExcel,
           )),

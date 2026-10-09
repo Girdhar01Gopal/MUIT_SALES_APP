@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:muit_sales_app/models/brochure_model.dart';
 import 'package:muit_sales_app/res/app_colors.dart';
+import 'package:muit_sales_app/wigets/app_background.dart';
 
 import '../controllers/brochure_controller.dart';
 
@@ -21,50 +22,81 @@ class BrochureView extends GetView<BrochureController> {
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: Stack(
-        children: [
-          // ---------- WATERMARK ----------
-          Positioned.fill(
-            child: IgnorePointer(
-              child: Center(
-                child: Opacity(
-                  opacity: 0.15,
-                  child: Image.asset(
-                    'assets/images/muit_spash_logo.webp',
-                    width: 280,
-                    fit: BoxFit.contain,
+      body: AppBackground(
+        child: Column(
+          children: [
+            _searchBar(),
+            Expanded(
+              child: Obx(() {
+                if (controller.isLoading.value &&
+                    controller.brochures.isEmpty) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final list = controller.filteredBrochures;
+
+                return RefreshIndicator(
+                  onRefresh: controller.fetchBrochures,
+                  child: list.isEmpty
+                      ? ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      const SizedBox(height: 120),
+                      Center(
+                        child: Text(
+                          controller.searchQuery.value.isEmpty
+                              ? 'No brochures found'
+                              : 'No matching brochures',
+                        ),
+                      ),
+                    ],
+                  )
+                      : ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(12),
+                    itemCount: list.length,
+                    itemBuilder: (_, i) => _card(list[i]),
                   ),
-                ),
-              ),
+                );
+              }),
             ),
-          ),
-
-          // ---------- CONTENT ----------
-          Obx(() {
-            if (controller.isLoading.value && controller.brochures.isEmpty) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            return RefreshIndicator(
-              onRefresh: controller.fetchBrochures,
-              child: controller.brochures.isEmpty
-                  ? ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: const [
-                  SizedBox(height: 120),
-                  Center(child: Text('No brochures found')),
-                ],
-              )
-                  : ListView.builder(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(12),
-                itemCount: controller.brochures.length,
-                itemBuilder: (_, i) => _card(controller.brochures[i]),
-              ),
-            );
-          }),
-        ],
+          ],
+        ),
       ),
+    );
+  }
+
+  // ---------- SEARCH BAR ----------
+  Widget _searchBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+      child: Obx(() => TextField(
+        controller: controller.searchCtrl,
+        onChanged: (v) => controller.searchQuery.value = v,
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          hintText: 'Search by title or course...',
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: controller.searchQuery.value.isEmpty
+              ? null
+              : IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: controller.clearSearch,
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.black, width: 1),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide:
+            const BorderSide(color: AppColors.darkBlue, width: 1.5),
+          ),
+        ),
+      )),
     );
   }
 

@@ -36,7 +36,7 @@ class LoginController extends GetxController {
       GetStorage().write(AppStrings.tokenKey, token);
       Get.offAllNamed(AppRoutes.dashboard);
     } catch (e) {
-      Get.snackbar('Error', 'Login fail ho gaya, dobara try karo');
+      Get.snackbar('Error', 'Login fail, Please try again');
     } finally {
       isLoading.value = false;
     }

@@ -67,10 +67,21 @@ class LeadsController extends GetxController {
     Get.toNamed(AppRoutes.crm, arguments: lead);
   }
 
-  // When status/date changes on the CRM screen, update the list immediately
-  void updateLocal(int id, String status, String followUpDate) {
+  // When status/date/priority changes on the CRM screen, update the list immediately
+  void updateLocal(
+      int id,
+      String status,
+      String followUpDate, {
+        String? priority,
+        String? campusVisitDate,
+      }) {
     final i = leads.indexWhere((l) => l.id == id);
     if (i == -1) return;
-    leads[i] = leads[i].copyWith(status: status, followUpDate: followUpDate);
+    leads[i] = leads[i].copyWith(
+      status: status,
+      followUpDate: followUpDate,
+      priority: priority,
+      campusVisitDate: campusVisitDate,
+    );
   }
 }

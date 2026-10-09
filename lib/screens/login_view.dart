@@ -32,7 +32,7 @@ class LoginView extends GetView<LoginController> {
                     keyboardType: TextInputType.emailAddress,
                     prefixIcon: Icons.email_outlined,
                     validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Email dalo' : null,
+                    (v == null || v.trim().isEmpty) ? 'Enter Email' : null,
                   ),
                   Obx(
                         () => CustomTextField(
@@ -48,7 +48,7 @@ class LoginView extends GetView<LoginController> {
                         !controller.obscure.value,
                       ),
                       validator: (v) =>
-                      (v == null || v.isEmpty) ? 'Password dalo' : null,
+                      (v == null || v.isEmpty) ? 'Enter Password' : null,
                     ),
                   ),
                   const SizedBox(height: 20),

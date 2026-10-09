@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:muit_sales_app/models/fees_model.dart';
 import 'package:muit_sales_app/res/app_colors.dart';
 import 'package:muit_sales_app/utils/format_helper.dart';
+import 'package:muit_sales_app/wigets/app_background.dart';
 
 import '../controllers/fees_controller.dart';
 
@@ -22,69 +23,50 @@ class FeesView extends GetView<FeesController> {
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: Stack(
-        children: [
-          // ---------- WATERMARK ----------
-          Positioned.fill(
-            child: IgnorePointer(
-              child: Center(
-                child: Opacity(
-                  opacity: 0.15,
-                  child: Image.asset(
-                    'assets/images/muit_spash_logo.webp',
-                    width: 280,
-                    fit: BoxFit.contain,
-                  ),
+      body: AppBackground(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              child: TextField(
+                onChanged: (v) => controller.search.value = v,
+                decoration: const InputDecoration(
+                  hintText: 'Search course',
+                  prefixIcon: Icon(Icons.search),
+                  filled: true,
+                  fillColor: Colors.white,
                 ),
               ),
             ),
-          ),
+            Expanded(
+              child: Obx(() {
+                if (controller.isLoading.value && controller.fees.isEmpty) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-          // ---------- CONTENT ----------
-          Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                child: TextField(
-                  onChanged: (v) => controller.search.value = v,
-                  decoration: const InputDecoration(
-                    hintText: 'Search course',
-                    prefixIcon: Icon(Icons.search),
-                    filled: true,
-                    fillColor: Colors.white,
+                final items = controller.filteredFees;
+
+                return RefreshIndicator(
+                  onRefresh: controller.fetchFees,
+                  child: items.isEmpty
+                      ? ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const [
+                      SizedBox(height: 120),
+                      Center(child: Text('No courses found')),
+                    ],
+                  )
+                      : ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(12),
+                    itemCount: items.length,
+                    itemBuilder: (_, i) => _card(items[i]),
                   ),
-                ),
-              ),
-              Expanded(
-                child: Obx(() {
-                  if (controller.isLoading.value && controller.fees.isEmpty) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  final items = controller.filteredFees;
-
-                  return RefreshIndicator(
-                    onRefresh: controller.fetchFees,
-                    child: items.isEmpty
-                        ? ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const [
-                        SizedBox(height: 120),
-                        Center(child: Text('No courses found')),
-                      ],
-                    )
-                        : ListView.builder(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.all(12),
-                      itemCount: items.length,
-                      itemBuilder: (_, i) => _card(items[i]),
-                    ),
-                  );
-                }),
-              ),
-            ],
-          ),
-        ],
+                );
+              }),
+            ),
+          ],
+        ),
       ),
     );
   }
