@@ -5,6 +5,7 @@ import 'package:muit_sales_app/models/note_model.dart';
 import 'package:muit_sales_app/repo/crm_repo.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../services/log_services.dart';
 import 'leads_controller.dart';
 
 class CrmController extends GetxController {
@@ -37,9 +38,9 @@ class CrmController extends GetxController {
     followUpCtrl.text = lead.followUpDate;
     campusVisitCtrl.text = lead.campusVisitDate;
 
-    // Visit remark as initial timeline note
     if (lead.remarks.isNotEmpty) {
-      notes.add(NoteModel(text: '[Field Visit Remark]: ${lead.remarks}', date: 'Visit Time'));
+      notes.add(NoteModel(
+          text: '[Field Visit Remark]: ${lead.remarks}', date: 'Visit Time'));
     }
   }
 
@@ -49,8 +50,15 @@ class CrmController extends GetxController {
     try {
       final ok = await launchUrl(Uri(scheme: 'tel', path: lead.phone));
       if (ok) {
-        // Auto-add activity note
         _addSystemNote('📞 Called ${lead.name} (${lead.phone})');
+
+        if (Get.isRegistered<LogService>()) {
+          LogService.to.addLog(
+            actionType: 'CALL',
+            description: 'Called student ${lead.name} (${lead.phone})',
+            extraData: {'lead_id': lead.id},
+          );
+        }
       } else {
         Get.snackbar('Call', 'Could not start the call');
       }
@@ -68,13 +76,16 @@ class CrmController extends GetxController {
 
     switch (messageType) {
       case 'general':
-        text = "Hello $name,\nMaharishi University (MUIT) mein aapka swagat hai! $course course ke regarding kisi bhi jaankari ke liye aap humse sampark kar sakte hain.";
+        text =
+        "Hello $name,\nMaharishi University (MUIT) mein aapka swagat hai! $course course ke regarding kisi bhi jaankari ke liye aap humse sampark kar sakte hain.";
         break;
       case 'fees':
-        text = "Hello $name,\nMUIT $course course ka Fee Structure aur Scholarship options janne ke liye link par click karein ya humse baat karein.";
+        text =
+        "Hello $name,\nMUIT $course course ka Fee Structure aur Scholarship options janne ke liye link par click karein ya humse baat karein.";
         break;
       case 'visit':
-        text = "Hello $name,\nAapko Maharishi University (MUIT) Campus visit ke liye aamantrit kiya jata hai. Campus visit schedule karne ke liye reply karein.";
+        text =
+        "Hello $name,\nAapko Maharishi University (MUIT) Campus visit ke liye aamantrit kiya jata hai. Campus visit schedule karne ke liye reply karein.";
         break;
     }
 
@@ -90,6 +101,14 @@ class CrmController extends GetxController {
 
       if (ok) {
         _addSystemNote('💬 Sent WhatsApp ($messageType template) to $name');
+
+        if (Get.isRegistered<LogService>()) {
+          LogService.to.addLog(
+            actionType: 'WHATSAPP',
+            description: 'Sent $messageType WhatsApp template to $name',
+            extraData: {'phone': lead.phone},
+          );
+        }
       } else {
         Get.snackbar('WhatsApp', 'Could not open WhatsApp');
       }
@@ -139,7 +158,6 @@ class CrmController extends GetxController {
       );
 
       if (ok) {
-        // Local state update across app
         if (Get.isRegistered<LeadsController>()) {
           Get.find<LeadsController>().updateLocal(
             lead.id,
@@ -149,6 +167,15 @@ class CrmController extends GetxController {
             campusVisitDate: campusVisitCtrl.text.trim(),
           );
         }
+
+        if (Get.isRegistered<LogService>()) {
+          LogService.to.addLog(
+            actionType: 'STATUS_CHANGE',
+            description:
+            'Updated lead ${lead.name} status to ${status.value}',
+          );
+        }
+
         Get.back();
         Get.snackbar('Success', 'Lead details updated successfully');
       } else {

@@ -12,6 +12,10 @@ class LeadModel {
   final String followUpDate;
   final String campusVisitDate;
   final String remarks;
+  final String? photoPath;
+  final String? address;
+  final double? lat;
+  final double? lng;
 
   LeadModel({
     required this.id,
@@ -27,6 +31,10 @@ class LeadModel {
     this.followUpDate = '',
     this.campusVisitDate = '',
     this.remarks = '',
+    this.photoPath,
+    this.address,
+    this.lat,
+    this.lng,
   });
 
   LeadModel copyWith({
@@ -35,6 +43,10 @@ class LeadModel {
     String? followUpDate,
     String? campusVisitDate,
     String? remarks,
+    String? photoPath,
+    String? address,
+    double? lat,
+    double? lng,
   }) {
     return LeadModel(
       id: id,
@@ -50,6 +62,10 @@ class LeadModel {
       followUpDate: followUpDate ?? this.followUpDate,
       campusVisitDate: campusVisitDate ?? this.campusVisitDate,
       remarks: remarks ?? this.remarks,
+      photoPath: photoPath ?? this.photoPath,
+      address: address ?? this.address,
+      lat: lat ?? this.lat,
+      lng: lng ?? this.lng,
     );
   }
 
@@ -68,6 +84,10 @@ class LeadModel {
       followUpDate: (json['follow_up_date'] ?? '').toString(),
       campusVisitDate: (json['campus_visit_date'] ?? '').toString(),
       remarks: (json['remarks'] ?? '').toString(),
+      photoPath: json['photo_path'] as String?,
+      address: json['address'] as String?,
+      lat: (json['latitude'] as num?)?.toDouble(),
+      lng: (json['longitude'] as num?)?.toDouble(),
     );
   }
 
@@ -85,5 +105,9 @@ class LeadModel {
     'follow_up_date': followUpDate,
     'campus_visit_date': campusVisitDate,
     'remarks': remarks,
+    'photo_path': photoPath,
+    'address': address,
+    'latitude': lat,
+    'longitude': lng,
   };
 }

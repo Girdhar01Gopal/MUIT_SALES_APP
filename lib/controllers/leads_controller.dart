@@ -18,6 +18,16 @@ class LeadsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
+    // Dashboard se status ke saath khulne par wahi filter select ho jaye
+    final args = Get.arguments;
+    if (args is Map) {
+      final s = args['status'];
+      if (s is String && filters.contains(s)) {
+        selectedStatus.value = s;
+      }
+    }
+
     fetchLeads();
   }
 
@@ -75,6 +85,15 @@ class LeadsController extends GetxController {
         String? priority,
         String? campusVisitDate,
       }) {
+    // shared repo list bhi update karo (Dashboard ke liye)
+    _repo.updateLocal(
+      id,
+      status: status,
+      followUpDate: followUpDate,
+      priority: priority,
+      campusVisitDate: campusVisitDate,
+    );
+
     final i = leads.indexWhere((l) => l.id == id);
     if (i == -1) return;
     leads[i] = leads[i].copyWith(

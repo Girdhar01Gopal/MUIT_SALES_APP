@@ -9,6 +9,7 @@ class VisitModel {
   final double lat;
   final double lng;
   final String address;
+  final String? photoPath;
 
   VisitModel({
     required this.studentName,
@@ -21,9 +22,9 @@ class VisitModel {
     required this.lat,
     required this.lng,
     required this.address,
+    this.photoPath,
   });
 
-  // Server ko ye keys jayengi, backend wale se match kara lena
   Map<String, dynamic> toJson() => {
     'student_name': studentName,
     'phone': phone,
@@ -35,5 +36,6 @@ class VisitModel {
     'latitude': lat,
     'longitude': lng,
     'address': address,
+    'photo_path': photoPath,
   };
 }

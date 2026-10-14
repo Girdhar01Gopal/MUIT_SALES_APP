@@ -4,12 +4,11 @@ import 'package:get_storage/get_storage.dart';
 import 'package:muit_sales_app/infrastructures/routes/app_routes.dart';
 import 'package:muit_sales_app/repo/auth_repo.dart';
 import 'package:muit_sales_app/res/app_strings.dart';
+import '../services/log_services.dart';
 
 class LoginController extends GetxController {
   final AuthRepo _repo = AuthRepo();
 
-  // Jab tak backend API ready nahi, true rakho.
-  // API ready hone par false kar dena.
   static const bool useDummyLogin = true;
 
   final formKey = GlobalKey<FormState>();
@@ -34,6 +33,16 @@ class LoginController extends GetxController {
       }
 
       GetStorage().write(AppStrings.tokenKey, token);
+      GetStorage().write('user_id', 'USER_101');
+      GetStorage().write('user_name', emailCtrl.text.trim().split('@')[0]);
+
+      if (Get.isRegistered<LogService>()) {
+        LogService.to.addLog(
+          actionType: 'LOGIN',
+          description: 'User ${emailCtrl.text.trim()} logged in successfully',
+        );
+      }
+
       Get.offAllNamed(AppRoutes.dashboard);
     } catch (e) {
       Get.snackbar('Error', 'Login fail, Please try again');

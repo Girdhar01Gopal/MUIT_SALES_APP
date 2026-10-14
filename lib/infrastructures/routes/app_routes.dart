@@ -8,6 +8,7 @@ class AppRoutes {
   static const excelUpload = '/excel-upload';
   static const brochure = '/brochure';
   static const fees = '/fees';
+  static const activityLogs = '/activity-logs';
 
 
 }

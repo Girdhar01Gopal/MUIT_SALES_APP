@@ -3,8 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:muit_sales_app/res/app_colors.dart';
-import 'package:muit_sales_app/wigets/app_background.dart';
+import 'package:muit_sales_app/res/brand.dart';
 import 'package:muit_sales_app/wigets/custom_button.dart';
 
 import '../controllers/excel_upload_controller.dart';
@@ -25,42 +24,27 @@ class ExcelUploadView extends GetView<ExcelUploadController> {
     }
   }
 
-  // Icon and color based on file type
-  IconData _fileIcon(String name) {
-    final ext = name.split('.').last.toLowerCase();
-    if (ext == 'pdf') return Icons.picture_as_pdf;
-    if (ext == 'doc' || ext == 'docx') return Icons.article;
-    if (ext == 'jpg' || ext == 'jpeg' || ext == 'png' || ext == 'webp') {
-      return Icons.image;
-    }
-    return Icons.table_chart;
-  }
+  // Only Excel files are used now, so one icon and one color
+  IconData _fileIcon(String name) => Icons.table_chart;
 
-  Color _fileColor(String name) {
-    final ext = name.split('.').last.toLowerCase();
-    if (ext == 'pdf') return AppColors.error;
-    if (ext == 'doc' || ext == 'docx') return const Color(0xFF2563EB);
-    return AppColors.success;
-  }
+  Color _fileColor(String name) => Brand.success;
 
   Color _statusColor(String status) {
-    if (status == 'Processed') return AppColors.success;
-    if (status == 'Failed') return AppColors.error;
-    return Colors.orange;
+    if (status == 'Processed') return Brand.success;
+    if (status == 'Failed') return Brand.danger;
+    return Brand.warning;
   }
 
   Widget _card({required Widget child}) {
-    return Card(
-      color: Colors.white,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Colors.black, width: 1),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Brand.hairline),
+        boxShadow: Brand.softShadow,
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: child,
-      ),
+      child: child,
     );
   }
 
@@ -71,7 +55,7 @@ class ExcelUploadView extends GetView<ExcelUploadController> {
         padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: SafeArea(
           child: Column(
@@ -87,19 +71,27 @@ class ExcelUploadView extends GetView<ExcelUploadController> {
                     child: Text(
                       item.name,
                       style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: Brand.ink,
+                      ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              Text('Date: ${item.date}'),
+              Text('Date: ${item.date}',
+                  style: const TextStyle(color: Brand.ink)),
               const SizedBox(height: 4),
-              Text('Size: ${item.size.isEmpty ? '-' : item.size}'),
+              Text('Size: ${item.size.isEmpty ? '-' : item.size}',
+                  style: const TextStyle(color: Brand.ink)),
               const SizedBox(height: 4),
               Text(
                 'Status: ${item.status}',
-                style: TextStyle(color: _statusColor(item.status)),
+                style: TextStyle(
+                  color: _statusColor(item.status),
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const SizedBox(height: 20),
               SizedBox(
@@ -107,6 +99,7 @@ class ExcelUploadView extends GetView<ExcelUploadController> {
                 child: CustomButton(
                   label: 'Open File',
                   isLoading: false,
+                  color: Brand.maroon,
                   onPressed: () {
                     Get.back();
                     controller.openFile(item);
@@ -125,18 +118,13 @@ class ExcelUploadView extends GetView<ExcelUploadController> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: const Color(0xFFE2E8F0), // light slate gray
-        appBar: AppBar(
-          backgroundColor: AppColors.darkBlueDeep,
-          elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.white),
-          title: const Text(
-            'Excel Upload',
-            style: TextStyle(color: Colors.white),
-          ),
+        backgroundColor: Brand.canvas,
+        appBar: Brand.appBar(
+          'Excel Upload',
           bottom: const TabBar(
-            indicatorColor: Colors.white,
-            labelColor: Colors.white,
+            indicatorColor: Brand.gold,
+            indicatorWeight: 3,
+            labelColor: Brand.gold,
             unselectedLabelColor: Colors.white70,
             tabs: [
               Tab(icon: Icon(Icons.upload_file), text: 'Upload'),
@@ -154,36 +142,61 @@ class ExcelUploadView extends GetView<ExcelUploadController> {
     );
   }
 
-  // ---------------- TAB 1 : existing upload screen ----------------
+  // ---------------- TAB 1 : download sample -> choose file -> upload ----------------
   Widget _uploadTab() {
-    return AppBackground(
+    return BrandBackground(
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // instructions
+          // instructions + sample download
           _card(
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
+                const Text(
                   'How to upload leads',
-                  style:
-                  TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: Brand.ink,
+                  ),
                 ),
-                SizedBox(height: 8),
-                Text(
-                    '1. Select an Excel (.xlsx, .xls), .csv, PDF or Word file'),
-                Text('2. For Excel, the first row must contain column names'),
-                Text('3. Tap Upload and your leads will appear in the list'),
-                SizedBox(height: 8),
-                Text(
-                  'The required columns depend on the backend (for example Name, Phone, Course).',
-                  style: TextStyle(color: AppColors.textGrey, fontSize: 12),
+                const SizedBox(height: 8),
+                const Text('1. Download the sample Excel file',
+                    style: TextStyle(color: Brand.ink)),
+                const Text('2. Fill in the leads (do not change the first row)',
+                    style: TextStyle(color: Brand.ink)),
+                const Text('3. Tap Choose File and select the filled Excel',
+                    style: TextStyle(color: Brand.ink)),
+                const Text('4. Tap Upload and your leads will appear in the list',
+                    style: TextStyle(color: Brand.ink)),
+                const SizedBox(height: 8),
+                const Text(
+                  'Columns: Name, Phone, Email, Course, City. Only .xlsx or .xls files are allowed.',
+                  style: TextStyle(color: Brand.inkSoft, fontSize: 12),
                 ),
+                const SizedBox(height: 12),
+                Obx(() => OutlinedButton.icon(
+                      style: Brand.outlinedButton(),
+                      onPressed: controller.isDownloading.value
+                          ? null
+                          : controller.downloadTemplate,
+                      icon: controller.isDownloading.value
+                          ? const SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Brand.maroon,
+                              ),
+                            )
+                          : const Icon(Icons.download),
+                      label: const Text('Download Sample Excel'),
+                    )),
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
 
           // file select + upload
           _card(
@@ -195,7 +208,7 @@ class ExcelUploadView extends GetView<ExcelUploadController> {
                   if (f == null) {
                     return const Text(
                       'No file selected',
-                      style: TextStyle(color: AppColors.textGrey),
+                      style: TextStyle(color: Brand.inkSoft),
                     );
                   }
                   final size = _sizeText(f);
@@ -206,6 +219,7 @@ class ExcelUploadView extends GetView<ExcelUploadController> {
                       Expanded(
                         child: Text(
                           size.isEmpty ? f.name : '${f.name}  ($size)',
+                          style: const TextStyle(color: Brand.ink),
                         ),
                       ),
                     ],
@@ -213,23 +227,17 @@ class ExcelUploadView extends GetView<ExcelUploadController> {
                 }),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.darkBlue,
-                    side: const BorderSide(color: AppColors.darkBlue),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
+                  style: Brand.outlinedButton(),
                   onPressed: controller.pickFile,
                   icon: const Icon(Icons.upload_file),
                   label: const Text('Choose File'),
                 ),
                 const SizedBox(height: 12),
-                Obx(() => CustomButton(
-                  label: 'Upload',
-                  isLoading: controller.isUploading.value,
-                  onPressed: controller.upload,
-                )),
+                Obx(() => BrandGoldButton(
+                      label: 'Upload',
+                      isLoading: controller.isUploading.value,
+                      onPressed: controller.upload,
+                    )),
               ],
             ),
           ),
@@ -240,16 +248,16 @@ class ExcelUploadView extends GetView<ExcelUploadController> {
               return const SizedBox.shrink();
             }
             return Padding(
-              padding: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.only(top: 14),
               child: Row(
                 children: [
                   const Icon(Icons.check_circle,
-                      size: 18, color: AppColors.success),
+                      size: 18, color: Brand.success),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       'Last upload: ${controller.lastUploaded.value}',
-                      style: const TextStyle(color: AppColors.success),
+                      style: const TextStyle(color: Brand.success),
                     ),
                   ),
                 ],
@@ -263,7 +271,7 @@ class ExcelUploadView extends GetView<ExcelUploadController> {
 
   // ---------------- TAB 2 : search + pull to refresh + list ----------------
   Widget _listTab() {
-    return AppBackground(
+    return BrandBackground(
       child: Column(
         children: [
           // search bar
@@ -271,32 +279,14 @@ class ExcelUploadView extends GetView<ExcelUploadController> {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: TextField(
               onChanged: controller.onSearchChanged,
-              decoration: InputDecoration(
-                hintText: 'Search files...',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Colors.black, width: 1),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Colors.black, width: 1),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide:
-                  const BorderSide(color: AppColors.darkBlue, width: 1.5),
-                ),
-              ),
+              decoration: Brand.searchDecoration(hint: 'Search files...'),
             ),
           ),
 
           // list with pull to refresh
           Expanded(
             child: RefreshIndicator(
+              color: Brand.maroon,
               onRefresh: controller.refreshList,
               child: Obx(() {
                 final list = controller.filteredItems;
@@ -309,7 +299,7 @@ class ExcelUploadView extends GetView<ExcelUploadController> {
                       Center(
                         child: Text(
                           'No files found',
-                          style: TextStyle(color: AppColors.textGrey),
+                          style: TextStyle(color: Brand.inkSoft),
                         ),
                       ),
                     ],
@@ -327,13 +317,21 @@ class ExcelUploadView extends GetView<ExcelUploadController> {
                         ? item.date
                         : '${item.date}  •  ${item.size}';
                     return InkWell(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(20),
                       onTap: () => _showFileSheet(item),
                       child: _card(
                         child: Row(
                           children: [
-                            Icon(_fileIcon(item.name),
-                                color: _fileColor(item.name), size: 30),
+                            Container(
+                              height: 44,
+                              width: 44,
+                              decoration: BoxDecoration(
+                                color: Brand.successTint,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(_fileIcon(item.name),
+                                  color: _fileColor(item.name), size: 26),
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
@@ -344,14 +342,15 @@ class ExcelUploadView extends GetView<ExcelUploadController> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
+                                      fontWeight: FontWeight.w800,
+                                      color: Brand.ink,
+                                    ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     sub,
                                     style: const TextStyle(
-                                        color: AppColors.textGrey,
-                                        fontSize: 12),
+                                        color: Brand.inkSoft, fontSize: 12),
                                   ),
                                 ],
                               ),
@@ -361,7 +360,7 @@ class ExcelUploadView extends GetView<ExcelUploadController> {
                               item.status,
                               style: TextStyle(
                                 color: _statusColor(item.status),
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
                                 fontSize: 12,
                               ),
                             ),

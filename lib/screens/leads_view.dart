@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:muit_sales_app/infrastructures/routes/app_routes.dart';
 import 'package:muit_sales_app/models/lead_model.dart';
-import 'package:muit_sales_app/res/app_colors.dart';
-import 'package:muit_sales_app/wigets/app_background.dart';
+import 'package:muit_sales_app/res/brand.dart';
 
 import '../controllers/leads_controller.dart';
 
@@ -13,23 +12,16 @@ class LeadsView extends GetView<LeadsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE2E8F0), // light slate gray
-      appBar: AppBar(
-        backgroundColor: AppColors.darkBlueDeep,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'Leads',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
+      backgroundColor: Brand.canvas,
+      appBar: Brand.appBar('Leads'),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Get.toNamed(AppRoutes.visitEntry),
-        backgroundColor: AppColors.darkBlue,
-        foregroundColor: Colors.white,
+        backgroundColor: Brand.gold,
+        foregroundColor: Brand.ink,
+        elevation: 4,
         child: const Icon(Icons.add),
       ),
-      body: AppBackground(
+      body: BrandBackground(
         child: Column(
           children: [
             _searchBox(),
@@ -44,15 +36,11 @@ class LeadsView extends GetView<LeadsController> {
   // ---------- SEARCH ----------
   Widget _searchBox() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
       child: TextField(
         onChanged: (v) => controller.search.value = v,
-        decoration: const InputDecoration(
-          hintText: 'Search by name, phone or course',
-          prefixIcon: Icon(Icons.search),
-          filled: true,
-          fillColor: Colors.white,
-        ),
+        decoration:
+            Brand.searchDecoration(hint: 'Search by name, phone or course'),
       ),
     );
   }
@@ -60,9 +48,9 @@ class LeadsView extends GetView<LeadsController> {
   // ---------- FILTER CHIPS ----------
   Widget _filterChips() {
     return SizedBox(
-      height: 52,
+      height: 54,
       child: Obx(
-            () => ListView(
+        () => ListView(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           children: controller.filters.map((f) {
@@ -72,7 +60,19 @@ class LeadsView extends GetView<LeadsController> {
               child: ChoiceChip(
                 label: Text('$f (${controller.countFor(f)})'),
                 selected: selected,
+                showCheckmark: false,
                 backgroundColor: Colors.white,
+                selectedColor: Brand.maroon,
+                side: BorderSide(
+                  color: selected ? Brand.maroon : Brand.hairlineStrong,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                labelStyle: TextStyle(
+                  color: selected ? Colors.white : Brand.inkSoft,
+                  fontWeight: FontWeight.w700,
+                ),
                 onSelected: (_) => controller.selectedStatus.value = f,
               ),
             );
@@ -86,132 +86,131 @@ class LeadsView extends GetView<LeadsController> {
   Widget _list() {
     return Obx(() {
       if (controller.isLoading.value && controller.leads.isEmpty) {
-        return const Center(child: CircularProgressIndicator());
+        return const Center(
+          child: CircularProgressIndicator(color: Brand.maroon),
+        );
       }
 
       final items = controller.filteredLeads;
 
       return RefreshIndicator(
+        color: Brand.maroon,
         onRefresh: controller.fetchLeads,
         child: items.isEmpty
             ? ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: const [
-            SizedBox(height: 120),
-            Center(child: Text('No leads found')),
-          ],
-        )
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: const [
+                  SizedBox(height: 120),
+                  Center(
+                    child: Text(
+                      'No leads found',
+                      style: TextStyle(color: Brand.inkSoft),
+                    ),
+                  ),
+                ],
+              )
             : ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(12, 4, 12, 90),
-          itemCount: items.length,
-          itemBuilder: (_, i) => _leadCard(items[i]),
-        ),
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 90),
+                itemCount: items.length,
+                itemBuilder: (_, i) => _leadCard(items[i]),
+              ),
       );
     });
   }
 
   // ---------- LEAD CARD ----------
   Widget _leadCard(LeadModel lead) {
-    final color = _statusColor(lead.status);
-
-    return Card(
-      color: Colors.white,
+    return Container(
       margin: const EdgeInsets.symmetric(vertical: 5),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Colors.black, width: 1),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Brand.hairline),
+        boxShadow: Brand.softShadow,
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () => controller.openLead(lead),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                backgroundColor: AppColors.darkBlue,
-                foregroundColor: Colors.white,
-                child: Text(
-                  lead.name.isNotEmpty ? lead.name[0].toUpperCase() : '?',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => controller.openLead(lead),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  backgroundColor: Brand.maroon,
+                  foregroundColor: Brand.gold,
+                  child: Text(
+                    lead.name.isNotEmpty ? lead.name[0].toUpperCase() : '?',
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      lead.name,
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 2),
-                    Text('${lead.course}  •  ${lead.phone}'),
-                    if (lead.schoolCollege.isNotEmpty)
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        lead.schoolCollege,
-                        style: const TextStyle(color: AppColors.textGrey),
-                      ),
-                    if (lead.followUpDate.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.event,
-                                size: 14, color: AppColors.textGrey),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Follow-up: ${lead.followUpDate}',
-                              style: const TextStyle(
-                                  fontSize: 12, color: AppColors.textGrey),
-                            ),
-                          ],
+                        lead.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: Brand.ink,
                         ),
                       ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${lead.course}  •  ${lead.phone}',
+                        style: const TextStyle(color: Brand.ink),
+                      ),
+                      if (lead.schoolCollege.isNotEmpty)
+                        Text(
+                          lead.schoolCollege,
+                          style: const TextStyle(color: Brand.inkSoft),
+                        ),
+                      if (lead.followUpDate.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.event,
+                                  size: 14, color: Brand.inkSoft),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Follow-up: ${lead.followUpDate}',
+                                style: const TextStyle(
+                                    fontSize: 12, color: Brand.inkSoft),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                Column(
+                  children: [
+                    BrandChip(
+                      label: lead.status,
+                      background: Brand.statusTint(lead.status),
+                      foreground: Brand.statusText(lead.status),
+                    ),
+                    const SizedBox(height: 4),
+                    IconButton(
+                      onPressed: () => controller.callLead(lead),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Brand.maroonTint,
+                      ),
+                      icon: const Icon(Icons.call, color: Brand.maroon),
+                    ),
                   ],
                 ),
-              ),
-              Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      lead.status,
-                      style: TextStyle(
-                        color: color,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => controller.callLead(lead),
-                    icon: const Icon(Icons.call, color: AppColors.success),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
-  }
-
-  Color _statusColor(String status) {
-    switch (status) {
-      case 'Admission':
-        return AppColors.success;
-      case 'Follow-up':
-        return AppColors.secondary;
-      default:
-        return AppColors.darkBlue; // Enquiry
-    }
   }
 }

@@ -9,6 +9,7 @@ import '../../bindings/leads_binding.dart';
 import '../../bindings/login_binding.dart';
 import '../../bindings/splash_binding.dart';
 import '../../bindings/visit_entry_binding.dart';
+import '../../screens/activity_logs_view.dart';
 import '../../screens/brochure_view.dart';
 import '../../screens/crm_view.dart';
 import '../../screens/dashboard_view.dart';
@@ -58,6 +59,12 @@ class AppPages {
       page: () =>  CrmView(),
       transition: Transition.rightToLeft,
       binding: CrmBinding(),
+    ),
+
+    GetPage(
+      name: AppRoutes.activityLogs,
+      page: () => ActivityLogsView(),
+      transition: Transition.rightToLeft,
     ),
 
     GetPage(
